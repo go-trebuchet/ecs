@@ -1,11 +1,21 @@
 package model
 
-
 type Entity interface{
 	Id() uint64
-	Component(string) Component
+
+	AddComponent(Component) error
+	//ReplaceComponent(Component)
+	//WillRemoveComponent(Component)
+	RemoveComponent(Component) error
+	//RemoveAllComponents()
+
+	Component(uuid string) Component
 	Components() []Component
-	AddComponent(Component)
+	//ComponentTypes() []string
+	HasComponent(uuid string) bool
+
+	AddedComponent() AddedComponentPublisher
+	RemovedComponent() RemovedComponentPublisher
 }
 
 type Component interface{
@@ -14,28 +24,61 @@ type Component interface{
 
 
 type Matcher interface{
-	Match(Entity) bool
+	Matches(Entity) bool
 }
+
+//type Group interface{
+//	Entities() []Entity
+//	HandleEntity(Entity)
+//	UpdateEntity(Entity)
+//	WillRemoveEntity(Entity)
+//	Matches(Entity) bool
+//	ContainsEntity(Entity) bool
+//}
 
 type System interface{
 	Matcher() Matcher
-	Init(Pool)
-	Update(Pool)
+	AddPool(Pool)
 	AddEntity(Entity)
-	WillRemoveEntity(Entity)
+	//WillRemoveEntity(Entity)
 	RemoveEntity(Entity)
 }
 
+type SetupSystem interface{
+	Setup()
+	System
+}
+
+type UpdateSystem interface {
+	Update()
+	System
+}
+
+type CleanUpSystem interface {
+	CleanUp()
+	System
+}
+
+type TearDownSystem interface {
+	TearDown()
+	System
+}
 
 type Pool interface {
 	CreateEntity() Entity
 	Entities() []Entity
-	GetEntityByID(uint64) (Entity, error)
+	Entity(uint64) (Entity, error)
 	Count() int
 	HasEntity(uint64) bool
 	DestroyEntity(uint64)
 	DestroyAllEntities()
+	//Group(Matcher) Group
 	AddSystem(System, priority int)
+	//System(string) System
+	//Systems() []System
+	//RemoveSystem(string)
+	//RemoveSystem(System)
+	//RemoveAllSystems()
 	Update()
 
 
